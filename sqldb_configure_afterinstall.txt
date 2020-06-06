@@ -1,0 +1,53 @@
+
+net localgroup administrators wanda\wddbsql_admin  /add
+net localgroup administrators wanda\sql_server_dba  /add
+
+
+
+USE [master]
+GO
+ALTER DATABASE [model] MODIFY FILE ( NAME = N'modeldev', SIZE = 204800KB , FILEGROWTH = 204800KB )
+GO
+ALTER DATABASE [model] MODIFY FILE ( NAME = N'modellog', SIZE = 102400KB , FILEGROWTH = 102400KB )
+GO
+
+
+
+EXEC SP_CONFIGURE 'SHOW ADVANCED OPTION', 1
+RECONFIGURE
+
+EXEC SP_CONFIGURE 'MAX DEGREE OF PARALLELISM', 1
+RECONFIGURE
+
+EXEC SP_CONFIGURE 'MAX SERVER MEMORY (MB)', 65536
+RECONFIGURE
+GO
+
+
+USE [master]
+GO
+CREATE LOGIN [zabbix] WITH PASSWORD=N'T8mv$r3u7', DEFAULT_DATABASE=[master], CHECK_EXPIRATION=OFF, CHECK_POLICY=OFF
+GO
+grant VIEW SERVER STATE  to [zabbix]
+GO
+USE [master]
+GO
+grant VIEW ANY DEFINITION to [zabbix]
+go
+
+--配置sa禁用
+USE [master]
+GO
+DENY CONNECT SQL TO [sa]
+GO
+ALTER LOGIN [sa] DISABLE
+GO
+
+
+exec sp_configure 'default trace enabled', 1;
+GO
+RECONFIGURE;
+GO
+
+
+
